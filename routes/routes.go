@@ -2,7 +2,7 @@ package routes
 
 import (
 	"github.com/gin-gonic/gin"
-	"github.com/gotech/ecommerce/controllers"
+	"ecommerce/controllers"
 )
 
 // routes for the user

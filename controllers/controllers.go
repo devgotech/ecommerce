@@ -64,13 +64,13 @@ func Signup() gin.HandlerFunc {
 		}
 
 		if count > 0 {
-			c.JSON(http.StatusBadRequest, gin.H("error": "user already exists"))
+			c.JSON(http.StatusBadRequest, gin.H("error":"user already exists"))
 		}
 
 		count, err = UserCollection.CountDocuments(ctx, bson.M{"phone":user.Phone})
 
 		defer cancel()
-		if err := nil {
+		if err != nil {
 			log.Panic(err)
 			c.JSON(http.StatusInternalServerError, gin.H("error": err))
 			return
@@ -95,7 +95,7 @@ func Signup() gin.HandlerFunc {
 		user.Address_Details = make([]models.Address, 0)
 		user.Order_Status = make([]models.Order, 0)
 		_, inserterr := UserCollection.InsertOne(ctx, user)
-		if inserterr := nil {
+		if inserterr != nil {
 			c.JSON(http.StatusInternalServerError, gin.H("error":"the user did not get created"))
 			return
 		}
@@ -135,7 +135,7 @@ func Login() gin.HandlerFunc {
 }
 
 func ProductViewerAdmin() gin.HandlerFunc {
-	
+
 }
 
 func searchProduct() gin.HandlerFunc {

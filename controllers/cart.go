@@ -1,7 +1,17 @@
 package controllers
 
-import(
+import (
+	"context"
+	"ecommerce/database"
+	"log"
+	"net/http"
+	"time"
+
+	"github.com/GoAdminGroup/go-admin/plugins/admin/models"
 	"github.com/gin-gonic/gin"
+	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/bson/primitive"
+	"go.mongodb.org/mongo-driver/mongo"
 )
 
 type Application struct{
@@ -16,22 +26,178 @@ func NewApplication(prodCollection, userCollection *mongo.Collection) *Applicati
 	}
 }
 
-func AddToCart() gin.HandlerFunc{
+func (app *Application) AddToCart() gin.HandlerFunc{
+	return func(ctx *gin.Context) {
+		productQueryID := c.Query("id")
+		if productQueryID == "" {
+			log.Println("Product id is empty")
 
+			_ = c.AbortWithError(http.StatusBadRequest, errors.New("product is empty"))
+			return 
+		}
+
+		userQeryID := c.Query("userID")
+		if userQeryID == ""{
+			log.Println("user id is empty")
+			_ = c.AbortWithError(http.StatusBadRequest, errors.New("user id is empty"))
+			return
+		}
+
+		productID, err := primitive.ObjectIDFromHex(productQueryID)
+
+		if err != nil {
+			log.Println(err)
+			c.AbortWithError(http.StatusInternalServerError)
+		}
+
+		var ctx, cancel = context.WithTimeout(context.Background(), 5*time.Second)
+
+		defer cancel()
+
+		err = database.AddProductToCart(ctx, app.prodCollection, app.userCollection, productID, userQeryID)
+		if err != nil {
+			c.IndentedJSON(http.StatusInternalServerError, err)
+		}
+		c.IndentedJSON(200, "Successfully added to the cart")
+	}
 }
 
-func RemoveItem() gin.HandlerFunc{
+func (app *Application) RemoveItem() gin.HandlerFunc{
+	return func(ctx *gin.Context) {
+		productQueryID := c.Query("id")
+		if productQueryID == "" {
+			log.Println("Product id is empty")
 
+			_ = c.AbortWithError(http.StatusBadRequest, errors.New("product is empty"))
+			return 
+		}
+
+		userQeryID := c.Query("userID")
+		if userQeryID == ""{
+			log.Println("user id is empty")
+			_ = c.AbortWithError(http.StatusBadRequest, errors.New("user id is empty"))
+			return
+		}
+
+		productID, err := primitive.ObjectIDFromHex(productQueryID)
+
+		if err != nil {
+			log.Println(err)
+			c.AbortWithError(http.StatusInternalServerError)
+		}
+
+		var ctx, cancel = context.WithTimeout(context.Background(), 5*time.Second)
+
+		defer cancel()
+
+		database.RemoveCartItem(ctx, app.prodCollection, app.userCollection, productID, userQeryID)
+
+		if err != nil {
+			c.IndentedJSON(http.StatusInternalServerError, err)
+			return
+		}
+		c.IndentedJSON(200, "successfully removed item from cart")
+	}
 }
 
 func GetItemFromCart() gin.HandlerFunc{
+	return func (c *gin.Context)  {
+		user_id := c.Query("id")
 
+		if user_id == "" {
+			c.Header("Content-Type", "application/json")
+			c.JSON(http.StatusNotFound, gin.H{"Error":"invalid id"})
+			c.Abort()
+			return
+		}
+
+		usert_id, _ := primitive.ObjectIDFromHex(user_id)
+
+		var ctx, cancel = context.WithTimeout(context.Background(), 100*time.Second)
+		defer cancel()
+
+		var filledcart models.UserWithId
+		err := UserCollection.FindOne(ctx, bson.D{primitive.E{Key: "_id", Value: usert_id}}).Decode(&filledcart)
+
+		if err != nil {
+			log.Println(err)
+			c.TndentedJSON(500, "not found")
+			return
+		}
+
+		filter_match := bson.D{{key:"$match", Value: bson.D{primitive.E{Key:"_id", Value: usert_id}}}}
+		unwind := bson.D{{Key:"$unwind", Value: bson{primitive.E{Key:"path", Value:"$usercart"}}}}
+		grouping := bson.D{{Key:"$group", Value:bson.D{primitive.E{Key:"_id", Value: "$_id"}, {Key: "total", Value: bson.D{primitive.E{Key:"$sum", Value: "$usercart.price"}}}}}}
+		pointcursor, err := UserCollection.Aggregate(ctx, mongo.Pipeline{filter_match, unwind, grouping})
+		if err != nil {
+			log.Println(err)
+		}
+		var listing []bson.M
+		if err = pointcursor.All(ctx, &listing); err != nil {
+			log.Println(err)
+			c.AbortWithStatus(http.StatusInternalServerError)
+		}
+		for _, json := range listing{
+			c.IndentedJSON(200, json["total"])
+			c.IndentedJSON(200, filledcart.UserCart)
+		}
+		ctx.Done()
+	}
 }
 
-func BuyFromCart() gin.HandlerFunc{
+func (app *Application) BuyFromCart() gin.HandlerFunc{
+	return func(ctx *gin.Context) {
+		userQeryID := c.Query("id")
 
+		if userQeryID == ""{
+			log.Println("user id is empty")
+			c.AbortWithError(http.StatusBadRequest, errors.New("userID is empty"))
+		}
+
+		context.WithTimeout(context.Background(), 100*time.Second)
+
+		defer cancel()
+
+		err := database.BuyItemFromCart(ctx, app.userCollection, userQeryID)
+		if err != nil {
+			c.IndentedJSON("successfully placed the order")
+		}
+	}
 }
 
-func InstantBuy() gin.HandlerFunc{
-	
+func (app *Application) InstantBuy() gin.HandlerFunc{
+	return func(ctx *gin.Context) {
+		productQueryID := c.Query("id")
+		if productQueryID == "" {
+			log.Println("Product id is empty")
+
+			_ = c.AbortWithError(http.StatusBadRequest, errors.New("product is empty"))
+			return 
+		}
+
+		userQeryID := c.Query("userID")
+		if userQeryID == ""{
+			log.Println("user id is empty")
+			_ = c.AbortWithError(http.StatusBadRequest, errors.New("user id is empty"))
+			return
+		}
+
+		productID, err := primitive.ObjectIDFromHex(productQueryID)
+
+		if err != nil {
+			log.Println(err)
+			c.AbortWithError(http.StatusInternalServerError)
+		}
+
+		var ctx, cancel = context.WithTimeout(context.Background(), 5*time.Second)
+
+		defer cancel()
+
+		err = database.InstantBuyer(ctx, app.prodCollection, app.userCollection, productID, userQeryID)
+		if err != nil {
+			c.IndentedJSON(http.StatusInternalServerError, err)
+			return
+		}
+		c.IndentedJSON(200, "Successfully placed order")
+	}
 }

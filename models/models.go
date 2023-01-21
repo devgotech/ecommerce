@@ -20,7 +20,7 @@ type User struct {
 	User_ID         string             `json:"user_id"`
 	UserCart        []ProductUser      `json:"usercart" bson:"usercart"`
 	Address_Details []Address          `json:"address" bson:"address"`
-	Order_Status     []Order            `json:"orders" bson:"orders"`
+	Order_Status    []Order            `json:"orders" bson:"orders"`
 }
 
 type Product struct {
@@ -39,18 +39,18 @@ type ProductUser struct {
 }
 type Address struct {
 	Address_ID primitive.ObjectID `bson:"_id"`
-	House     *string            `json:"house_name" bson:"house_name"`
-	Street    *string            `json:"street_name" bson:"street_name"`
-	City      *string            `json:"city_name" bson:"city_name"`
-	Zipcode   *string            `json:"zip_code" bson:"zip_code"`
+	House      *string            `json:"house_name" bson:"house_name"`
+	Street     *string            `json:"street_name" bson:"street_name"`
+	City       *string            `json:"city_name" bson:"city_name"`
+	Zipcode    *string            `json:"zip_code" bson:"zip_code"`
 }
 type Order struct {
 	Order_ID       primitive.ObjectID `bson:"_id"`
 	Order_Cart     []ProductUser      `json:"order_list" bson:"order_list"`
 	Ordered_At     time.Time          `json:"ordered_at" bson:"ordered_at"`
-	Price          int                `json:"price" bson:"price"`
-	Discount       *int               `json:"discount" bson:"discount"`
-	Payment_method Payment            `json:"payment_method" bson:"payment_method"`
+	Price          *uint64	    	      `json:"price" bson:"price"`
+	Discount       *int	              `json:"discount" bson:"discount"`
+	Payment_Method Payment            `json:"payment_method" bson:"payment_method"`
 }
 type Payment struct {
 	Digital bool `json:"digital"`

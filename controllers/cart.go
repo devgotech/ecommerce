@@ -3,6 +3,7 @@ package controllers
 import (
 	"context"
 	"ecommerce/database"
+	"ecommerce/models"
 	"errors"
 	"log"
 	"net/http"
@@ -36,8 +37,8 @@ func (app *Application) AddToCart() gin.HandlerFunc {
 			return
 		}
 
-		userQeryID := c.Query("userID")
-		if userQeryID == "" {
+		userQueryID := c.Query("userID")
+		if userQueryID == "" {
 			log.Println("user id is empty")
 			_ = c.AbortWithError(http.StatusBadRequest, errors.New("user id is empty"))
 			return
@@ -47,14 +48,15 @@ func (app *Application) AddToCart() gin.HandlerFunc {
 
 		if err != nil {
 			log.Println(err)
-			c.AbortWithError(http.StatusInternalServerError, err)
+			c.AbortWithStatus(http.StatusInternalServerError)
+			return
 		}
 
 		var ctx, cancel = context.WithTimeout(context.Background(), 5*time.Second)
 
 		defer cancel()
 
-		err = database.AddProductToCart(ctx, app.prodCollection, app.userCollection, productID, userQeryID)
+		err = database.AddProductToCart(ctx, app.prodCollection, app.userCollection, productID, userQueryID)
 		if err != nil {
 			c.IndentedJSON(http.StatusInternalServerError, err)
 		}
@@ -116,7 +118,7 @@ func GetItemFromCart() gin.HandlerFunc {
 		var ctx, cancel = context.WithTimeout(context.Background(), 100*time.Second)
 		defer cancel()
 
-		var filledcart models.User_ID
+		var filledcart models.User
 		err := UserCollection.FindOne(ctx, bson.D{primitive.E{Key: "_id", Value: usert_id}}).Decode(&filledcart)
 
 		if err != nil {
@@ -147,20 +149,20 @@ func GetItemFromCart() gin.HandlerFunc {
 
 func (app *Application) BuyFromCart() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		userQeryID := c.Query("id")
 
-		if userQeryID == "" {
+		userQueryID := c.Query("id")
+		if userQueryID == "" {
 			log.Println("user id is empty")
 			c.AbortWithError(http.StatusBadRequest, errors.New("userID is empty"))
 		}
 
-		context.WithTimeout(context.Background(), 100*time.Second)
+		ctx, cancel := context.WithTimeout(context.Background(), 100*time.Second)
 
 		defer cancel()
 
-		err := database.BuyItemFromCart(ctx, app.userCollection, userQeryID)
+		err := database.BuyItemFromCart(ctx, app.userCollection, userQueryID)
 		if err != nil {
-			c.IndentedJSON("successfully placed the order")
+			c.IndentedJSON(200, "successfully placed the order")
 		}
 	}
 }

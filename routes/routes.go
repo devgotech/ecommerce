@@ -1,11 +1,12 @@
 package routes
 
 import (
-	"github.com/gin-gonic/gin"
 	"ecommerce/controllers"
+
+	"github.com/gin-gonic/gin"
 )
 
-// routes for the user
+// UserRoutes routes for the user
 func UserRoutes(incomingRoutes *gin.Engine) {
 	ir := incomingRoutes
 	ir.POST("/user/signup", controllers.SignUp())

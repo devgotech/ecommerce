@@ -4,11 +4,11 @@ import (
 	"log"
 	"os"
 
-	"github.com/gin-gonic/gin"
 	"ecommerce/controllers"
 	"ecommerce/database"
 	"ecommerce/middleware"
 	"ecommerce/routes"
+	"github.com/gin-gonic/gin"
 )
 
 func main() {
@@ -29,7 +29,7 @@ func main() {
 	router.GET("/addtocart", app.AddToCart())
 	router.GET("/removeitem", app.RemoveItem())
 	router.GET("/cartcheckout", app.BuyFromCart())
-	router.GET("/instantbuy", app.Instantbuy())
-
+	router.GET("/instantbuy", app.InstantBuy())
+	log.Println("serving:"+port)
 	log.Fatal(router.Run(":" + port))
 }

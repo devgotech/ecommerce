@@ -138,7 +138,7 @@ func EditWorkAdress() gin.HandlerFunc {
 	}
 }
 
-func DeleteAdresses() gin.HandlerFunc {
+func DeleteAddresses() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		user_id := c.Query("id")
 

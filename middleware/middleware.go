@@ -1,9 +1,9 @@
 package middleware
 
-import(
+import (
 	"ecommerce/tokens"
-	"net/http"
 	"github.com/gin-gonic/gin"
+	"net/http"
 )
 
 func Authentication() gin.HandlerFunc {

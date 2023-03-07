@@ -31,5 +31,5 @@ func main() {
 	router.GET("/cartcheckout", app.BuyFromCart())
 	router.GET("/instantbuy", app.InstantBuy())
 	log.Println("serving:"+port)
-	log.Fatal(router.Run(":" + port))
+	log.Fatal(router.Run("0.0.0.0:" + port))
 }

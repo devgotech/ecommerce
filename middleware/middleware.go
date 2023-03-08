@@ -11,6 +11,7 @@ import (
 
 func Authentication() gin.HandlerFunc {
 	return func(c *gin.Context) {
+		/*
 		ClientLogin := c.Request.Header.Get("/user/login")
 		if ClientLogin == "" {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "No authorization header provided"})
@@ -23,8 +24,14 @@ func Authentication() gin.HandlerFunc {
 			c.Abort()
 			return
 		}
+		*/
+		
 		ClientToken := c.Request.Header.Get("token")
 		if ClientToken == "" {
+			c.GetHeader("/user/signup")
+		} else if ClientToken != "/user/signup"{
+			c.GetHeader("/user/login")
+		} else {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "No authorization header provided"})
 			c.Abort()
 			return

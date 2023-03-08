@@ -7,13 +7,13 @@ services:
     ports:
       - 27017:27107
     environment:
-      MONGO_INTITD_ROOT_USERNAME: ''
-      MONGO_INITDB_ROOT_PASSWORD: ''
+      MONGO_INTITD_ROOT_USERNAME: development
+      MONGO_INITDB_ROOT_PASSWORD: testpassword
 
-    mongo-express:
-      ports:
-        - 8081:8081
-      environment:
-        ME_CONFIG_MONGO_INTITD_ROOT_USERNAME: ''
-        ME_MONGO_INIITD_ROOT_USERNAME: ''
-        ME_CONFIG_MONGODB_URL: mongodb://@ecommerce:27017
+  mongo-express:
+    ports:
+      - 8081:8081
+    environment:
+      ME_CONFIG_MONGO_INTITD_ROOT_USERNAME: development
+      ME_MONGO_INIITD_ROOT_USERNAME: development
+      ME_CONFIG_MONGODB_URL: mongodb://development:testpassword@mongo:27017

@@ -24,6 +24,12 @@ func main() {
 
 	routes.UserRoutes(router)
 	router.Use(middleware.Authentication())
+	// router.GET("/", showIndexPage)
+	// userRoutes := router.Group("/user")
+	// {
+	// 	userRoutes.GET("/signup", showRegistrationPage)
+	// 	userRoutes.POST("/signup", controllers.SignUp())
+	// }
 
 	//other routes apart from user
 	router.GET("/addtocart", app.AddToCart())

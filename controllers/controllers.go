@@ -194,6 +194,7 @@ func SearchProduct() gin.HandlerFunc {
 	}
 }
 
+
 func SearchProductByQuery() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		var searchProducts []models.Product
@@ -201,7 +202,7 @@ func SearchProductByQuery() gin.HandlerFunc {
 
 		// check if it's empty
 		if queryParam == "" {
-			log.Println("Query is emppty")
+			log.Println("Query is empty")
 			c.Header("Content-Type", "application/json")
 			c.JSON(http.StatusNotFound, gin.H{"Error": "Invalid search index"})
 			c.Abort()
